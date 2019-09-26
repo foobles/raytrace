@@ -43,7 +43,21 @@ impl Vec3 {
         Vec3::new(self.a * factor, self.b * factor, self.c * factor)
     }
 
+    pub fn x(self) -> f64 { self.a }
+    pub fn y(self) -> f64 { self.b }
+    pub fn z(self) -> f64 { self.c }
 
+    pub fn r(self) -> f64 { self.a }
+    pub fn g(self) -> f64 { self.b }
+    pub fn b(self) -> f64 { self.c }
+
+    pub fn cross(self, rhs: Vec3) -> Vec3 {
+        Vec3::new(
+            self.b*rhs.c - self.c*rhs.b,
+            self.c*rhs.a - self.a*rhs.c,
+            self.a*rhs.b - self.b*rhs.a
+        )
+    }
 }
 
 macro_rules! generate_arithmetic_2_arg {
