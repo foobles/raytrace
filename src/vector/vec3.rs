@@ -129,8 +129,60 @@ macro_rules! generate_arithmetic_1_arg {
                 Vec3::empty() - self
             }
         }
+
+        impl Mul<f64> for $rhs {
+            type Output = Vec3;
+            fn mul(self, rhs: f64) -> Self::Output{
+                self * Vec3::new(rhs, rhs, rhs)
+            }
+        }
+
+
+        impl Div<f64> for $rhs {
+            type Output = Vec3;
+            fn div(self, rhs: f64) -> Self::Output{
+                let f = 1.0 / rhs;
+                self * f
+            }
+        }
     };
 }
+
+impl MulAssign<f64> for Vec3 {
+    fn mul_assign(&mut self, rhs: f64) {
+        *self = *self * rhs;
+    }
+}
+
+impl DivAssign<f64> for Vec3 {
+    fn div_assign(&mut self, rhs: f64) {
+        *self = *self / rhs;
+    }
+}
+
+impl Index<usize> for Vec3 {
+    type Output = f64;
+    fn index(&self, idx: usize) -> &f64 {
+        match idx {
+            0 => &self.a,
+            1 => &self.b,
+            2 => &self.b,
+            _ => panic!("Index {} is out of bounds for Vec3", idx)
+        }
+    }
+}
+
+impl IndexMut<usize> for Vec3 {
+    fn index_mut(&mut self, idx: usize) -> &mut f64 {
+        match idx {
+            0 => &mut self.a,
+            1 => &mut self.b,
+            2 => &mut self.b,
+            _ => panic!("Index {} is out of bounds for Vec3", idx)
+        }
+    }
+}
+
 
 generate_arithmetic_2_arg!(Vec3, Vec3);
 generate_arithmetic_2_arg!(&Vec3, Vec3);
