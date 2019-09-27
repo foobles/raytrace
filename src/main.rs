@@ -1,7 +1,9 @@
+mod vector;
+
 use std::fs::File;
 use std::io::Write;
 
-fn main() -> Result<(), Box<dyn std::error::Error>> {
+fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out.ppm")?;
     let nx = 200;
     let ny = 100;
