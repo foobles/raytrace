@@ -4,8 +4,8 @@ mod hit;
 use std::fs::File;
 use std::io::Write;
 use vector::{Ray, Vec3};
-use hit::{Hittable, HitRecord, Sphere, HittableList};
-use rand::Rng;
+use hit::{Hittable, Sphere, HittableList};
+use rand::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
 struct Camera {
@@ -33,9 +33,23 @@ impl Camera {
     }
 }
 
+fn random_in_unit_sphere() -> Vec3 {
+    //let mut rng = thread_rng();
+    loop {
+        let p = Vec3::new(random(), random(), random()) * 2.0 - Vec3::new(1.0, 1.0, 1.0);
+        if p.length_squared() < 1.0 {
+            return p;
+        } else {
+            continue;
+        }
+    }
+}
+
 fn color(ray: Ray, world: &dyn Hittable) -> Vec3 {
-    if let Some(rec) = world.hit(ray, 0.0, std::f64::MAX) {
-        Vec3::new(rec.normal.x() + 1.0, rec.normal.y() + 1.0, rec.normal.z() + 1.0) / 2.0
+    if let Some(rec) = world.hit(ray, 0.001, std::f64::MAX) {
+
+        let target_dir = rec.normal + random_in_unit_sphere();
+        color(Ray::new(rec.point, target_dir), world) * 0.5
     } else {
         let dir = ray.direction().normalize();
         let t = (dir.y() + 1.0) / 2.0;
@@ -45,8 +59,8 @@ fn color(ray: Ray, world: &dyn Hittable) -> Vec3 {
 
 fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out/out.ppm")?;
-    const NX: i32 = 200;
-    const NY: i32 = 100;
+    const NX: i32 = 400;
+    const NY: i32 = 200;
     const NS: i32 = 100;
     writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
@@ -72,6 +86,7 @@ fn main() -> Result<(), std::io::Error> {
                 c += color(r, &world);
             }
             c /= NS as f64;
+            c = Vec3::new(c.x().sqrt(), c.y().sqrt(), c.z().sqrt());
             let ir = (c.r() * 255.99) as i32;
             let ig = (c.g() * 255.99) as i32;
             let ib = (c.b() * 255.99) as i32;
