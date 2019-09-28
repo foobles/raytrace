@@ -51,6 +51,11 @@ impl Vec3 {
     pub fn g(self) -> f64 { self.b }
     pub fn b(self) -> f64 { self.c }
 
+    pub fn dot(self, rhs: Vec3) -> f64 {
+        let p = self * rhs;
+        p.a + p.b + p.c 
+    }
+
     pub fn cross(self, rhs: Vec3) -> Vec3 {
         Vec3::new(
             self.b*rhs.c - self.c*rhs.b,
