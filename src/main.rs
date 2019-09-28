@@ -4,7 +4,7 @@ use std::fs::File;
 use std::io::Write;
 
 fn main() -> Result<(), std::io::Error> {
-    let mut out_file = File::create("out.ppm")?;
+    let mut out_file = File::create("out/out.ppm")?;
     let nx = 200;
     let ny = 100;
     writeln!(&mut out_file, "P3\n{} {}\n255", nx, ny)?;
