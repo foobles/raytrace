@@ -1,10 +1,14 @@
 mod vector;
 mod hit;
+mod mat;
 
 use std::fs::File;
 use std::io::Write;
+
 use vector::{Ray, Vec3};
 use hit::{Hittable, Sphere, HittableList};
+use mat::Lambertian;
+
 use rand::prelude::*;
 
 #[derive(Clone, Copy, Debug)]
@@ -33,23 +37,17 @@ impl Camera {
     }
 }
 
-fn random_in_unit_sphere() -> Vec3 {
-    //let mut rng = thread_rng();
-    loop {
-        let p = Vec3::new(random(), random(), random()) * 2.0 - Vec3::new(1.0, 1.0, 1.0);
-        if p.length_squared() < 1.0 {
-            return p;
-        } else {
-            continue;
-        }
-    }
-}
 
-fn color(ray: Ray, world: &dyn Hittable) -> Vec3 {
+
+fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
+    const MAX_DEPTH: i32 = 50;
     if let Some(rec) = world.hit(ray, 0.001, std::f64::MAX) {
-
-        let target_dir = rec.normal + random_in_unit_sphere();
-        color(Ray::new(rec.point, target_dir), world) * 0.5
+        if let Some((attenuation, scatter)) = rec.material.scatter(ray, rec) {
+            if depth < MAX_DEPTH {
+                return attenuation * color(scatter, world, depth + 1);
+            }
+        }
+        Vec3::new(0.0, 0.0, 0.0)
     } else {
         let dir = ray.direction().normalize();
         let t = (dir.y() + 1.0) / 2.0;
@@ -59,14 +57,22 @@ fn color(ray: Ray, world: &dyn Hittable) -> Vec3 {
 
 fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out/out.ppm")?;
-    const NX: i32 = 400;
-    const NY: i32 = 200;
+    const NX: i32 = 200;
+    const NY: i32 = 100;
     const NS: i32 = 100;
     writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
     let world = HittableList::new(vec![
-        Box::new(Sphere::new(Vec3::new(0.0, 0.0, -1.0), 0.5)),
-        Box::new(Sphere::new(Vec3::new(0.0, -100.5, -1.0), 100.0))
+        Box::new(Sphere::new(
+            Vec3::new(0.0, 0.0, -1.0),
+            0.5,
+            Box::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3)))
+        )),
+        Box::new(Sphere::new(
+            Vec3::new(0.0, -100.5, -1.0),
+            100.0,
+            Box::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)))
+        ))
     ]);
 
     let camera = Camera::new(
@@ -83,7 +89,7 @@ fn main() -> Result<(), std::io::Error> {
                 let u = (i as f64 + rng.gen::<f64>()) / NX as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / NY as f64;
                 let r = camera.get_ray(u, v);
-                c += color(r, &world);
+                c += color(r, &world, 0);
             }
             c /= NS as f64;
             c = Vec3::new(c.x().sqrt(), c.y().sqrt(), c.z().sqrt());
