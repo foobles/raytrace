@@ -19,12 +19,12 @@ impl Hittable for Sphere {
         let b = oc.dot(ray.direction());
         let c = oc.dot(oc) - self.radius * self.radius;
         let disc = b*b - a*c;
-        if disc >= 0.0 {
+        if disc > 0.0 {
             let mut time = (-b - disc.sqrt()) / a;
-            if time < min_t || time > max_t {
+            if time <= min_t || time >= max_t {
                 time = (-b + disc.sqrt()) / a;
             }
-            if time < min_t || time > max_t {
+            if time <= min_t || time >= max_t {
                 return None;
             }
             let point = ray.position_at(time);
