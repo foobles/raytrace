@@ -134,7 +134,7 @@ fn main() -> Result<(), std::io::Error> {
         let ir = (c.r() * 255.99) as i32;
         let ig = (c.g() * 255.99) as i32;
         let ib = (c.b() * 255.99) as i32;
-        writeln!(&mut out_file, "{} {} {}", ir, ig, ib);
+        writeln!(&mut out_file, "{} {} {}", ir, ig, ib)?;
     }
     Ok(())
 }

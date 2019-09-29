@@ -3,8 +3,6 @@ use crate::vector::{Vec3, Ray};
 use crate::hit::HitRecord;
 use crate::random_in_unit_sphere;
 
-use rand::prelude::*;
-
 pub struct Lambertian {
     albedo: Vec3
 }
@@ -16,7 +14,7 @@ impl Lambertian {
 }
 
 impl Material for Lambertian {
-    fn scatter(&self, ray: Ray, rec: HitRecord) -> Option<(Vec3, Ray)> {
+    fn scatter(&self, _ray: Ray, rec: HitRecord) -> Option<(Vec3, Ray)> {
         let target_dir = rec.normal + random_in_unit_sphere();
         Some((self.albedo, Ray::new(rec.point, target_dir)))
     }

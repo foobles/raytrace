@@ -1,7 +1,6 @@
 use crate::vector::{Vec3, Ray};
 use crate::mat::Material;
 use super::{HitRecord, Hittable};
-use core::borrow::Borrow;
 
 
 pub struct Sphere {
