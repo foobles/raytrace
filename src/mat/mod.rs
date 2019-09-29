@@ -1,5 +1,4 @@
-use crate::vector::{Ray, Vec3};
-use crate::hit::{HitRecord};
+use crate::prelude::*;
 
 mod lambertian;
 mod metal;

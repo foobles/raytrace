@@ -1,7 +1,5 @@
 use super::Material;
-use crate::vector::{Vec3, Ray};
-use crate::hit::HitRecord;
-use crate::random_in_unit_sphere;
+use crate::prelude::*;
 
 pub struct Metal {
     albedo: Vec3,

@@ -1,7 +1,5 @@
-use crate::vector::{Vec3, Ray};
-use crate::mat::Material;
-use super::{HitRecord, Hittable};
-
+use super::{Material, Hittable};
+use crate::prelude::*;
 
 pub struct Sphere {
     center: Vec3,

@@ -1,27 +1,16 @@
 mod vector;
-mod hit;
-mod mat;
+pub mod hit;
+pub mod mat;
+pub mod prelude;
 
 use std::fs::File;
 use std::io::Write;
+use rand::Rng;
 
-use vector::{Ray, Vec3};
+use prelude::*;
+
 use hit::{Hittable, Sphere, HittableList};
 use mat::{Lambertian, Metal};
-
-use rand::prelude::*;
-
-pub fn random_in_unit_sphere() -> Vec3 {
-    //let mut rng = thread_rng();
-    loop {
-        let p = Vec3::new(random(), random(), random()) * 2.0 - Vec3::new(1.0, 1.0, 1.0);
-        if p.length_squared() < 1.0 {
-            return p;
-        } else {
-            continue;
-        }
-    }
-}
 
 #[derive(Clone, Copy, Debug)]
 struct Camera {

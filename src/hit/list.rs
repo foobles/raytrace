@@ -1,5 +1,5 @@
-use crate::vector::Ray;
-use super::{Hittable, HitRecord};
+use crate::prelude::*;
+use hit::Hittable;
 
 
 pub struct HittableList {

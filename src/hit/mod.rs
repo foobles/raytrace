@@ -1,8 +1,8 @@
 mod sphere;
 mod list;
 
-use crate::vector::{Ray, Vec3};
-use crate::mat::Material;
+use crate::prelude::*;
+use mat::Material;
 
 pub use sphere::Sphere;
 pub use list::HittableList;
