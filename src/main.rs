@@ -98,7 +98,7 @@ fn main() -> Result<(), std::io::Error> {
     let mut prev_progress = 0.0;
     for j in (0..NY).rev() {
         for i in 0..NX {
-            let mut c = Vec3::empty();
+            let mut c = Vec3::zero();
             for _ in 0..NS {
                 let u = (i as f64 + rng.gen::<f64>()) / NX as f64;
                 let v = (j as f64 + rng.gen::<f64>()) / NY as f64;
