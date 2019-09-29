@@ -24,7 +24,7 @@ impl Vec3 {
         Vec3 { a, b, c }
     }
 
-    pub fn empty() -> Self {
+    pub fn zero() -> Self {
         Vec3 { a: 0.0, b: 0.0, c: 0.0}
     }
 
@@ -131,7 +131,7 @@ macro_rules! generate_arithmetic_1_arg {
         impl Neg for $rhs {
             type Output = Vec3;
             fn neg(self) -> Self::Output {
-                Vec3::empty() - self
+                Vec3::zero() - self
             }
         }
 
