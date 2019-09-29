@@ -25,8 +25,8 @@ impl Camera {
         Camera {
             origin,
             lower_left,
-            horizontal: Vec3::new(width, 0.0, 0.0),
-            vertical: Vec3::new(0.0, height, 0.0)
+            horizontal: vec3(width, 0.0, 0.0),
+            vertical: vec3(0.0, height, 0.0)
         }
     }
 
@@ -48,11 +48,11 @@ fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
                 return attenuation * color(scatter, world, depth + 1);
             }
         }
-        Vec3::new(0.0, 0.0, 0.0)
+        vec3(0.0, 0.0, 0.0)
     } else {
         let dir = ray.direction().normalize();
-        let t = (dir.y() + 1.0) / 2.0;
-        Vec3::new(1.0, 1.0, 1.0) * (1.0 - t) + Vec3::new(0.5, 0.7, 1.0) * t
+        let t = (dir.x() + 1.0) / 2.0;
+        vec3(1.0, 1.0, 1.0) * (1.0 - t) + vec3(0.5, 0.7, 1.0) * t
     }
 }
 
@@ -60,40 +60,38 @@ fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out/out.ppm")?;
     const NX: i32 = 400;
     const NY: i32 = 200;
-    const NS: i32 = 20;
+    const NS: i32 = 1;
     writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
     let world = HittableList::new(vec![
         Box::new(Sphere::new(
-            Vec3::new(0.0, 0.0, -1.8),
-            0.5,
-            Box::new(Lambertian::new(Vec3::new(0.8, 0.3, 0.3)))
+            vec3(0.0, 0.3, -1.8),
+            0.6,
+            Box::new(Lambertian::new(vec3(0.8, 0.3, 0.3)))
         )),
         Box::new(Sphere::new(
-            Vec3::new(0.0, -100.5, -1.0),
+            vec3(0.0, -100.5, -1.0),
             100.0,
-            Box::new(Lambertian::new(Vec3::new(0.8, 0.8, 0.0)))
+            Box::new(Lambertian::new(vec3(0.8, 0.8, 0.0)))
         )),
         Box::new(Sphere::new(
-            Vec3::new(1.5, 0.0, -1.0),
+            vec3(1.5, 0.0, -1.0),
             0.5,
-            Box::new(Metal::new(Vec3::new(0.8, 0.6, 0.2), 0.0))
+            Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.0))
         )),
         Box::new(Sphere::new(
-            Vec3::new(-0.5, 0.0, -1.0),
+            vec3(-1.0, 0.0, -0.6),
             0.5,
-            Box::new(Metal::new(Vec3::new(0.99, 0.99, 0.99), 0.0))
+            Box::new(Metal::new(vec3(0.8, 0.8, 0.8), 0.1))
         ))
     ]);
 
     let camera = Camera::new(
-        Vec3::new(0.0, 0.0, 2.0),
-        Vec3::new(-2.0, -1.0, -1.0),
+        vec3(0.0, 0.0, 2.0),
+        vec3(-2.0, -1.0, -1.0),
         4.0,
         2.0
     );
-
-    let mut ret = Vec::with_capacity((NX*NY) as usize);
 
     let mut rng = rand::thread_rng();
     let mut progress = 0.0;
@@ -108,22 +106,19 @@ fn main() -> Result<(), std::io::Error> {
                 c += color(r, &world, 0);
             }
             c /= NS as f64;
-            c = Vec3::new(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
+            c = vec3(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
 
-            ret.push(c);
+            let ir = (c.r() * 255.99) as i32;
+            let ig = (c.g() * 255.99) as i32;
+            let ib = (c.b() * 255.99) as i32;
+            writeln!(&mut out_file, "{} {} {}", ir, ig, ib)?;
+
             progress += 1.0 / (NY * NX) as f64 * 100.0;
             if progress >= prev_progress + 1.0 {
                 println!("{:.2}%", progress);
                 prev_progress = progress;
             }
         }
-    }
-
-    for c in ret {
-        let ir = (c.r() * 255.99) as i32;
-        let ig = (c.g() * 255.99) as i32;
-        let ib = (c.b() * 255.99) as i32;
-        writeln!(&mut out_file, "{} {} {}", ir, ig, ib)?;
     }
     Ok(())
 }

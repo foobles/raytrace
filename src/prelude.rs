@@ -15,3 +15,7 @@ pub fn random_in_unit_sphere() -> Vec3 {
         }
     }
 }
+
+pub fn vec3(a: f64, b: f64, c: f64) -> Vec3 {
+    Vec3::new(a, b, c)
+}
