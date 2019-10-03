@@ -10,7 +10,7 @@ use rand::Rng;
 use prelude::*;
 
 use hit::{Hittable, Sphere, HittableList};
-use mat::{Lambertian, Metal};
+use mat::{Lambertian, Metal, Dielectric};
 
 #[derive(Clone, Copy, Debug)]
 struct Camera {
@@ -58,9 +58,9 @@ fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
 
 fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out/out.ppm")?;
-    const NX: i32 = 400;
-    const NY: i32 = 200;
-    const NS: i32 = 1;
+    const NX: i32 = 200;
+    const NY: i32 = 100;
+    const NS: i32 = 80;
     writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
     let world = HittableList::new(vec![
@@ -82,8 +82,8 @@ fn main() -> Result<(), std::io::Error> {
         Box::new(Sphere::new(
             vec3(-1.0, 0.0, -0.6),
             0.5,
-            Box::new(Metal::new(vec3(0.8, 0.8, 0.8), 0.1))
-        ))
+            Box::new(Dielectric::new(1.5))
+        )),
     ]);
 
     let camera = Camera::new(
