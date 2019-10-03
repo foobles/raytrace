@@ -1,5 +1,6 @@
 use super::Material;
 use crate::prelude::*;
+use crate::vector;
 
 pub struct Metal {
     albedo: Vec3,
@@ -14,7 +15,7 @@ impl Metal {
 
 impl Material for Metal {
     fn scatter(&self, ray: Ray, rec: HitRecord) -> Option<(Vec3, Ray)> {
-        let reflected = reflect(ray.direction().normalize(), rec.normal);
+        let reflected = vector::reflect(ray.direction().normalize(), rec.normal);
         let scatter = Ray::new(rec.point, reflected + random_in_unit_sphere() * self.fuzz);
         if scatter.direction().dot(rec.normal) > 0.0 {
             Some((self.albedo, scatter))
@@ -22,8 +23,4 @@ impl Material for Metal {
             None
         }
     }
-}
-
-fn reflect(v: Vec3, n: Vec3) -> Vec3 {
-    v - n * v.dot(n)*2.0 // ???
 }
