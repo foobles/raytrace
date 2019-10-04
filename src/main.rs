@@ -58,9 +58,9 @@ fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
 
 fn main() -> Result<(), std::io::Error> {
     let mut out_file = File::create("out/out.ppm")?;
-    const NX: i32 = 200;
-    const NY: i32 = 100;
-    const NS: i32 = 80;
+    const NX: i32 = 600;
+    const NY: i32 = 300;
+    const NS: i32 = 100;
     writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
     let world = HittableList::new(vec![
@@ -82,6 +82,12 @@ fn main() -> Result<(), std::io::Error> {
         Box::new(Sphere::new(
             vec3(-1.0, 0.0, -0.6),
             0.5,
+            Box::new(Dielectric::new(1.5))
+        )),
+
+        Box::new(Sphere::new(
+            vec3(-1.0, 0.0, -0.6),
+            -0.45,
             Box::new(Dielectric::new(1.5))
         )),
     ]);

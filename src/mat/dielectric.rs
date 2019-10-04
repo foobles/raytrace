@@ -28,20 +28,20 @@ impl Material for Dielectric {
                 -ray.direction().dot(hit_rec.normal) / ray.direction().length()
             )
         };
+        if let Some(refracted) = vector::refract(ray.direction(), outward_normal, ni_over_nt) {
+            if rand::random::<f64>() < 1.0 - schlick(cos, self.ref_idx) {
+                return Some((vec3(1.0, 1.0, 1.0), Ray::new(hit_rec.point, refracted)));
+            }
+        }
 
+        let reflected = vector::reflect(ray.direction(), hit_rec.normal);
+        Some((vec3(1.0, 1.0, 1.0), Ray::new(hit_rec.point, reflected)))
 
-
-        Some(if let Some(refracted) = vector::refract(ray.direction(), outward_normal, ni_over_nt) {
-            (vec3(1.0, 1.0, 1.0), Ray::new(hit_rec.point, refracted))
-        } else {
-            let reflected = vector::reflect(ray.direction(), hit_rec.normal);
-            (vec3(1.0, 1.0, 1.0), Ray::new(hit_rec.point, reflected))
-        })
     }
 }
-//
-//fn schlick(cos: f64, ref_idx: f64) -> f64 {
-//    let r0 =(1.0-ref_idx) / (1.0+ref_idx);
-//    let r0 = r0 * r0;
-//    r0 + (1.0-r0) *
-//}
+
+fn schlick(cos: f64, ref_idx: f64) -> f64 {
+    let r0 =(1.0-ref_idx) / (1.0+ref_idx);
+    let r0 = r0 * r0;
+    r0 + (1.0-r0) * (1.0-cos).powf(5.0)
+}
