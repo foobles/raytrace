@@ -11,6 +11,31 @@ impl Sphere {
     pub fn new(center: Vec3, radius: f64, material: Box<dyn Material>) -> Self {
         Sphere { center, radius, material }
     }
+
+    fn material(&self) -> &dyn Material {
+        self.material.as_ref()
+    }
+
+    fn material_mut(&mut self) -> &mut dyn Material {
+        self.material.as_mut()
+    }
+
+    fn center(&self) -> Vec3 {
+        self.center
+    }
+
+    fn set_center(&mut self, center: Vec3) {
+        self.center = center
+    }
+
+
+    fn radius(&self) -> f64 {
+        self.radius
+    }
+
+    fn set_radius(&mut self, radius: f64) {
+        self.radius = radius
+    }
 }
 
 impl Hittable for Sphere {
