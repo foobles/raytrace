@@ -56,12 +56,43 @@ fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
     }
 }
 
+fn render_to_file(file: &mut File, world: &dyn Hittable, camera: &Camera) -> Result<(), std::io::Error> {
+    const NX: i32 = 200;
+    const NY: i32 = 100;
+    const NS: i32 = 30;
+
+    writeln!(file, "P3\n{} {}\n255", NX, NY)?;
+    let mut rng = rand::thread_rng();
+    let mut progress = 0.0;
+    let mut prev_progress = 0.0;
+    for j in (0..NY).rev() {
+        for i in 0..NX {
+            let mut c = Vec3::zero();
+            for _ in 0..NS {
+                let u = (i as f64 + rng.gen::<f64>()) / NX as f64;
+                let v = (j as f64 + rng.gen::<f64>()) / NY as f64;
+                let r = camera.get_ray(u, v);
+                c += color(r, world, 0);
+            }
+            c /= NS as f64;
+            c = vec3(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
+
+            let ir = (c.r() * 255.99) as i32;
+            let ig = (c.g() * 255.99) as i32;
+            let ib = (c.b() * 255.99) as i32;
+            writeln!(file, "{} {} {}", ir, ig, ib)?;
+
+            progress += 1.0 / (NY * NX) as f64 * 100.0;
+            if progress >= prev_progress + 1.0 {
+                println!("{:.2}%", progress);
+                prev_progress = progress;
+            }
+        }
+    }
+    Ok(())
+}
+
 fn main() -> Result<(), std::io::Error> {
-    let mut out_file = File::create("out/out.ppm")?;
-    const NX: i32 = 600;
-    const NY: i32 = 300;
-    const NS: i32 = 100;
-    writeln!(&mut out_file, "P3\n{} {}\n255", NX, NY)?;
 
     let world = HittableList::new(vec![
         Box::new(Sphere::new(
@@ -99,32 +130,10 @@ fn main() -> Result<(), std::io::Error> {
         2.0
     );
 
-    let mut rng = rand::thread_rng();
-    let mut progress = 0.0;
-    let mut prev_progress = 0.0;
-    for j in (0..NY).rev() {
-        for i in 0..NX {
-            let mut c = Vec3::zero();
-            for _ in 0..NS {
-                let u = (i as f64 + rng.gen::<f64>()) / NX as f64;
-                let v = (j as f64 + rng.gen::<f64>()) / NY as f64;
-                let r = camera.get_ray(u, v);
-                c += color(r, &world, 0);
-            }
-            c /= NS as f64;
-            c = vec3(c.r().sqrt(), c.g().sqrt(), c.b().sqrt());
 
-            let ir = (c.r() * 255.99) as i32;
-            let ig = (c.g() * 255.99) as i32;
-            let ib = (c.b() * 255.99) as i32;
-            writeln!(&mut out_file, "{} {} {}", ir, ig, ib)?;
-
-            progress += 1.0 / (NY * NX) as f64 * 100.0;
-            if progress >= prev_progress + 1.0 {
-                println!("{:.2}%", progress);
-                prev_progress = progress;
-            }
-        }
     }
+
+    render_to_file(&mut out_file, &world, &camera)?;
+
     Ok(())
 }
