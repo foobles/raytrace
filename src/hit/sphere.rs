@@ -20,6 +20,10 @@ impl Sphere {
         self.material.as_mut()
     }
 
+    fn set_material(&mut self, material: Box<dyn Material>) {
+        self.material = material
+    }
+
     fn center(&self) -> Vec3 {
         self.center
     }
