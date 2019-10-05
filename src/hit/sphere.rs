@@ -12,32 +12,32 @@ impl Sphere {
         Sphere { center, radius, material }
     }
 
-    fn material(&self) -> &dyn Material {
+    pub fn material(&self) -> &dyn Material {
         self.material.as_ref()
     }
 
-    fn material_mut(&mut self) -> &mut dyn Material {
+    pub fn material_mut(&mut self) -> &mut dyn Material {
         self.material.as_mut()
     }
 
-    fn set_material(&mut self, material: Box<dyn Material>) {
+    pub fn set_material(&mut self, material: Box<dyn Material>) {
         self.material = material
     }
 
-    fn center(&self) -> Vec3 {
+    pub fn center(&self) -> Vec3 {
         self.center
     }
 
-    fn set_center(&mut self, center: Vec3) {
+    pub fn set_center(&mut self, center: Vec3) {
         self.center = center
     }
 
 
-    fn radius(&self) -> f64 {
+    pub fn radius(&self) -> f64 {
         self.radius
     }
 
-    fn set_radius(&mut self, radius: f64) {
+    pub fn set_radius(&mut self, radius: f64) {
         self.radius = radius
     }
 }
