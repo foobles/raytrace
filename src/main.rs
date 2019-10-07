@@ -5,6 +5,7 @@ pub mod prelude;
 
 use std::fs::File;
 use std::io::Write;
+use std::thread;
 use rand::Rng;
 
 use prelude::*;
@@ -57,9 +58,9 @@ fn color(ray: Ray, world: &dyn Hittable, depth: i32) -> Vec3 {
 }
 
 fn render_to_file(file: &mut File, world: &dyn Hittable, camera: &Camera) -> Result<(), std::io::Error> {
-    const NX: i32 = 200;
-    const NY: i32 = 100;
-    const NS: i32 = 30;
+    const NX: i32 = 400;
+    const NY: i32 = 200;
+    const NS: i32 = 100;
 
     writeln!(file, "P3\n{} {}\n255", NX, NY)?;
     let mut rng = rand::thread_rng();
@@ -94,35 +95,6 @@ fn render_to_file(file: &mut File, world: &dyn Hittable, camera: &Camera) -> Res
 
 fn main() -> Result<(), std::io::Error> {
 
-    let world = HittableList::new(vec![
-        Box::new(Sphere::new(
-            vec3(0.0, 0.3, -1.8),
-            0.6,
-            Box::new(Lambertian::new(vec3(0.8, 0.3, 0.3)))
-        )),
-        Box::new(Sphere::new(
-            vec3(0.0, -100.5, -1.0),
-            100.0,
-            Box::new(Lambertian::new(vec3(0.8, 0.8, 0.0)))
-        )),
-        Box::new(Sphere::new(
-            vec3(1.5, 0.0, -1.0),
-            0.5,
-            Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.0))
-        )),
-        Box::new(Sphere::new(
-            vec3(-1.0, 0.0, -0.6),
-            0.5,
-            Box::new(Dielectric::new(1.5))
-        )),
-
-        Box::new(Sphere::new(
-            vec3(-1.0, 0.0, -0.6),
-            -0.45,
-            Box::new(Dielectric::new(1.5))
-        )),
-    ]);
-
     let camera = Camera::new(
         vec3(0.0, 0.0, 2.0),
         vec3(-2.0, -1.0, -1.0),
@@ -130,10 +102,53 @@ fn main() -> Result<(), std::io::Error> {
         2.0
     );
 
+    let mut handles = Vec::with_capacity(40);
+
+    for i in 0..40 {
+
+        let handle = thread::spawn(move || {
+            let out_file_name = format!("out/out{}.ppm", i);
+            let mut out_file = File::create(&out_file_name).unwrap();
+
+            let x =  -0.5 + 2.5 * i as f64 / 40.0;
+
+            let world = HittableList::new(vec![
+                Box::new(Sphere::new(
+                    vec3(0.0, 0.6 - i as f64 * -0.6 / 40.0, -1.8),
+                    0.6,
+                    Box::new(Lambertian::new(vec3(0.8, 0.3, 0.3)))
+                )),
+                Box::new(Sphere::new(
+                    vec3(0.0, -100.5, -1.0),
+                    100.0,
+                    Box::new(Lambertian::new(vec3(0.3 + i as f64 * 0.5/40.0, 0.8 - i as f64 * 0.5 / 40.0, i as f64 * 0.2 / 40.0)))
+                )),
+                Box::new(Sphere::new(
+                    vec3(1.5, 0.0, -1.0),
+                    0.2 + 0.7 * i as f64 / 40.0 ,
+                    Box::new(Metal::new(vec3(0.8, 0.6, 0.2), 0.0))
+                )),
+                Box::new(Sphere::new(
+                    vec3(x, 0.0, -0.6),
+                    -0.45/2.0,
+                    Box::new(Dielectric::new(1.45))
+                )),
+                Box::new(Sphere::new(
+                    vec3(x, 0.0, -0.6),
+                    0.25,
+                    Box::new(Dielectric::new(1.45))
+                ))
+            ]);
+            render_to_file(&mut out_file, &world, &camera).unwrap();
+        });
+
+        handles.push(handle);
 
     }
 
-    render_to_file(&mut out_file, &world, &camera)?;
+    for h in handles {
+        h.join().unwrap();
+    }
 
     Ok(())
 }
